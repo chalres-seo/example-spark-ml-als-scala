@@ -1,0 +1,81 @@
+group 'com.example'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'scala'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+// Scala
+def scalaVersion = '2.11.12'
+def typeSafeConfig = '1.3.3'
+def scalaLogging = '3.9.0'
+def logbackVersion = '1.2.3'
+def log4jOverSlf4jVersion = '1.7.25'
+
+// Spark
+def sparkVersion = '2.3.1'
+def hadoopVersion = '2.8.2'
+def sparkAvroVersion = '4.0.0'
+
+// Test
+def junitVersion = '4.12'
+
+
+// Common
+dependencies {
+    compile group: 'org.scala-lang', name: 'scala-library', version: scalaVersion
+    compile group: 'com.typesafe', name: 'config', version: typeSafeConfig
+    compile group: 'com.typesafe.scala-logging', name: 'scala-logging_2.11', version: scalaLogging
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: logbackVersion
+    compile group: 'org.slf4j', name: 'log4j-over-slf4j', version: log4jOverSlf4jVersion
+}
+
+// Utils
+dependencies {
+    compile group: 'com.databricks', name: 'spark-avro_2.11', version: sparkAvroVersion
+}
+
+// Hadoop
+//dependencies {
+//    compile (group: 'org.apache.hadoop', name: 'hadoop-common', version: hadoopVersion)
+//    compile (group: 'org.apache.hadoop', name: 'hadoop-hdfs', version: hadoopVersion)
+//}
+
+// Spark central
+dependencies {
+    compile (group: 'org.apache.spark', name: 'spark-core_2.11', version: sparkVersion)
+    compile (group: 'org.apache.spark', name: 'spark-sql_2.11', version: sparkVersion)
+    compile (group: 'org.apache.spark', name: 'spark-hive_2.11', version: sparkVersion)
+    compile (group: 'org.apache.spark', name: 'spark-streaming_2.11', version: sparkVersion)
+    compile (group: 'org.apache.spark', name: 'spark-mllib_2.11', version: sparkVersion)
+}
+
+// Test
+dependencies {
+    compile 'org.scala-lang:scala-library:2.11.12'
+    testCompile group: 'junit', name: 'junit', version: junitVersion
+}
+
+configurations.all {
+    resolutionStrategy.force 'com.google.guava:guava:14.0.1'
+}
+
+jar {
+    manifest {
+        attributes "Main-Class": "com.example.apps.LocalAppMain"
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+task(main, dependsOn: 'classes', type: JavaExec) {
+    main = 'com.example.apps.LocalAppMain'
+    classpath = sourceSets.main.runtimeClasspath
+}
