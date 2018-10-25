@@ -50,6 +50,7 @@ object LocalAppMain extends LazyLogging {
     trainData.cache()
     cvData.cache()
 
+
     val allItemIDs = allData.map(_.product).distinct().collect()
     val bAllItemIDs = sc.broadcast(allItemIDs)
 
